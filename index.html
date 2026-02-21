@@ -1,262 +1,303 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart Bus Booking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Travels</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    :root{
-      --primary:#d84e55;
-      --light:#ffffff;
-      --dark:#121212;
-      --card:#ffffff;
-      --text:#000000;
-    }
+<style>
+:root{
+  --primary:#0f172a;
+  --elite:#0ea5e9;
+}
 
-    body{
-      margin:0;
-      font-family:'Segoe UI',sans-serif;
-      background:url("https://images.unsplash.com/photo-1504384308090-c894fdcc538d")
-      no-repeat center center/cover;
-      transition:0.3s;
-    }
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#f3f6fb;
+}
 
-    body.dark{
-      background:#121212;
-      color:white;
-    }
+/* NAVBAR */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 40px;
+  background:white;
+  box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
 
-    header{
-      background:var(--primary);
-      padding:15px 30px;
-      color:white;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
+.logo{
+  font-size:22px;
+  font-weight:bold;
+  color:var(--primary);
+}
+.logo span{ color:var(--elite); }
 
-    .dark-toggle{
-      background:white;
-      color:black;
-      padding:5px 12px;
-      border-radius:20px;
-      cursor:pointer;
-      font-size:12px;
-    }
+.login-btn{
+  background:var(--elite);
+  color:white;
+  padding:8px 20px;
+  border-radius:30px;
+  cursor:pointer;
+}
 
-    .container{
-      display:flex;
-      justify-content:center;
-      margin-top:40px;
-    }
+/* HERO */
+.hero{
+  height:380px;
+  background:linear-gradient(rgba(15,23,42,0.6),rgba(15,23,42,0.6)),
+  url("road.jpg") no-repeat center center/cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  color:white;
+}
 
-    .card{
-      background:white;
-      padding:30px;
-      width:480px;
-      border-radius:15px;
-      box-shadow:0 15px 40px rgba(0,0,0,0.3);
-      transition:0.3s;
-    }
+.hero h1{ font-size:38px; }
 
-    body.dark .card{
-      background:#1f1f1f;
-    }
+/* SEARCH */
+.search-card{
+  background:white;
+  width:85%;
+  margin:-50px auto 40px;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.1);
+  text-align:center;
+}
 
-    h2,h3{
-      text-align:center;
-      margin-bottom:15px;
-    }
+.search-btn{
+  background:var(--elite);
+  padding:15px;
+  border-radius:10px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    input{
-      width:100%;
-      padding:10px;
-      margin:8px 0;
-      border-radius:6px;
-      border:1px solid #ccc;
-    }
+/* LOGIN POPUP */
+.popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  visibility:hidden;
+  opacity:0;
+  transition:0.3s;
+  z-index:999;
+}
+.popup.active{ visibility:visible; opacity:1; }
 
-    button{
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-      border:none;
-      border-radius:6px;
-      background:var(--primary);
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-      transition:0.3s;
-    }
+.popup-content{
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  width:320px;
+  text-align:center;
+}
 
-    button:hover{
-      opacity:0.85;
-      transform:scale(1.02);
-    }
+/* LOGIN REQUIRED MODAL */
+.modal-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(8px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  visibility:hidden;
+  opacity:0;
+  transition:0.3s;
+  z-index:1000;
+}
+.modal-overlay.active{
+  visibility:visible;
+  opacity:1;
+}
+.modal-box{
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  width:320px;
+  text-align:center;
+  transform:scale(0.8);
+  transition:0.3s ease;
+}
+.modal-overlay.active .modal-box{
+  transform:scale(1);
+}
+.icon-circle{
+  width:60px;
+  height:60px;
+  background:#ffeaea;
+  color:#d84e55;
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  margin:0 auto 15px;
+}
+.modal-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+.primary-btn{
+  flex:1;
+  background:#0ea5e9;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.secondary-btn{
+  flex:1;
+  background:#e5e7eb;
+  border:none;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
 
-    #seat-container{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-top:15px;
-    }
+/* BOOKING */
+#booking-section{
+  display:none;
+  width:85%;
+  margin:20px auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 5px 25px rgba(0,0,0,0.08);
+}
 
-    .seat{
-      padding:12px;
-      border-radius:6px;
-      text-align:center;
-      font-weight:bold;
-      cursor:pointer;
-      transition:0.2s;
-    }
+#seat-container{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:15px;
+}
 
-    .available{
-      background:#e0e0e0;
-    }
+.seat{
+  padding:12px;
+  text-align:center;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.2s;
+}
+.available{ background:#e0e0e0; }
+.available:hover{ transform:scale(1.1); }
+.selected{ background:#4caf50; color:white; }
+.booked{ background:#d84e55; color:white; cursor:not-allowed; }
 
-    .available:hover{
-      background:#ccc;
-      transform:scale(1.1);
-    }
+.receipt{
+  margin-top:15px;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
 
-    .selected{
-      background:#4caf50;
-      color:white;
-      animation:pulse 0.4s;
-    }
-
-    .booked{
-      background:#d84e55;
-      color:white;
-      cursor:not-allowed;
-    }
-
-    @keyframes pulse{
-      0%{ transform:scale(0.9);}
-      50%{ transform:scale(1.1);}
-      100%{ transform:scale(1);}
-    }
-
-    .legend{
-      display:flex;
-      justify-content:space-around;
-      margin-top:10px;
-      font-size:12px;
-    }
-
-    .legend div{
-      display:flex;
-      align-items:center;
-      gap:5px;
-    }
-
-    .box{
-      width:15px;
-      height:15px;
-      border-radius:3px;
-    }
-
-    .receipt{
-      margin-top:20px;
-      padding:15px;
-      border-radius:10px;
-      border:1px solid #ccc;
-      font-size:14px;
-    }
-
-    /* Popup Login */
-    .popup{
-      position:fixed;
-      top:0;
-      left:0;
-      width:100%;
-      height:100%;
-      background:rgba(0,0,0,0.6);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      visibility:hidden;
-      opacity:0;
-      transition:0.3s;
-    }
-
-    .popup.active{
-      visibility:visible;
-      opacity:1;
-    }
-
-    .popup-content{
-      background:white;
-      padding:30px;
-      border-radius:10px;
-      width:300px;
-      animation:slideDown 0.4s;
-    }
-
-    @keyframes slideDown{
-      from{transform:translateY(-40px);opacity:0;}
-      to{transform:translateY(0);opacity:1;}
-    }
-  </style>
+input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:6px;
+  background:var(--elite);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div>🚌 Smart Bus Booking</div>
-  <div class="dark-toggle" onclick="toggleDark()">Dark Mode</div>
-</header>
+<div class="navbar">
+  <div class="logo">Elite <span>Travels</span></div>
+  <div class="login-btn" onclick="openLogin()">Login / Signup</div>
+</div>
 
-<div class="container">
-  <div class="card">
+<div class="hero">
+  <h1>Travel Elite. Travel Smart.</h1>
+</div>
 
-    <button onclick="openLogin()">Login / Signup</button>
+<div class="search-card">
+  <div class="search-btn" onclick="showBooking()">Search Elite Buses</div>
+</div>
 
-    <div id="booking-section" style="display:none;">
+<!-- LOGIN POPUP -->
+<div class="popup" id="loginPopup">
+  <div class="popup-content">
 
-      <h3>Select Seats (B101)</h3>
+    <div id="loginFormBox">
+      <h3>Login</h3>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <button onclick="signup()">Sign Up</button>
+      <button onclick="closeLogin()">Close</button>
+    </div>
 
-      <div class="legend">
-        <div><div class="box" style="background:#e0e0e0"></div> Available</div>
-        <div><div class="box" style="background:#4caf50"></div> Selected</div>
-        <div><div class="box" style="background:#d84e55"></div> Booked</div>
-      </div>
-
-      <div id="seat-container"></div>
-
-      <h3>Passenger Details</h3>
-      <input type="text" id="name" placeholder="Full Name">
-      <input type="text" id="mobile" placeholder="Mobile Number">
-      <input type="text" id="destination" placeholder="Destination">
-      <input type="text" id="time" placeholder="Travel Time">
-
-      <button onclick="confirmBooking()">Confirm Booking</button>
-
-      <div id="receipt" class="receipt"></div>
+    <div id="loginSuccessBox" style="display:none;">
+      <div style="font-size:50px;color:green;">✅</div>
+      <h3>Login Successful</h3>
+      <p>Welcome back!</p>
     </div>
 
   </div>
 </div>
 
-<div class="popup" id="loginPopup">
-  <div class="popup-content">
-    <h3>Login</h3>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="closeLogin()">Close</button>
+<!-- LOGIN REQUIRED POPUP -->
+<div class="modal-overlay" id="loginRequiredPopup">
+  <div class="modal-box">
+    <div class="icon-circle">⚠️</div>
+    <h2>Login Required</h2>
+    <p>You must login to book seats.</p>
+    <div class="modal-buttons">
+      <button class="primary-btn" onclick="goToLogin()">Login Now</button>
+      <button class="secondary-btn" onclick="closeLoginRequired()">Cancel</button>
+    </div>
   </div>
+</div>
+
+<!-- BOOKING -->
+<div id="booking-section">
+  <h3>Select Seats (B101)</h3>
+  <div id="seat-container"></div>
+
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="text" id="mobile" placeholder="Mobile Number">
+  <button onclick="confirmBooking()">Confirm Booking</button>
+
+  <div id="receipt" class="receipt"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion, setDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* YOUR ORIGINAL CONFIG (UNCHANGED) */
 const firebaseConfig = {
   apiKey: "AIzaSyDIpuhrOpQtkv1-7pSC4cshBJexlmYCCmI",
   authDomain: "smartbusbooking-ec70e.firebaseapp.com",
@@ -270,10 +311,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+let currentUser=null;
 let selectedSeats=[];
 let bookedSeats=[];
 const busId="B101";
 const seatContainer=document.getElementById("seat-container");
+
+onAuthStateChanged(auth,(user)=>{
+  currentUser=user||null;
+});
 
 function renderSeats(){
   seatContainer.innerHTML="";
@@ -285,10 +331,10 @@ function renderSeats(){
 
     if(bookedSeats.includes(id)){
       div.classList.add("booked");
-    } else if(selectedSeats.includes(id)){
+    }else if(selectedSeats.includes(id)){
       div.classList.add("selected");
       div.onclick=()=>toggleSeat(id);
-    } else{
+    }else{
       div.classList.add("available");
       div.onclick=()=>toggleSeat(id);
     }
@@ -299,13 +345,18 @@ function renderSeats(){
 function toggleSeat(id){
   if(selectedSeats.includes(id)){
     selectedSeats=selectedSeats.filter(s=>s!==id);
-  } else{
+  }else{
     selectedSeats.push(id);
   }
   renderSeats();
 }
 
 async function confirmBooking(){
+  if(!currentUser){
+    openLoginRequired();
+    return;
+  }
+
   const name=document.getElementById("name").value;
   const mobile=document.getElementById("mobile").value;
 
@@ -327,13 +378,14 @@ async function confirmBooking(){
 
   const id="BK"+Date.now();
   await setDoc(doc(db,"bookings",id),{
-    name,mobile,seats:selectedSeats,bus:busId
+    name,mobile,seats:selectedSeats,bus:busId,user:currentUser.email
   });
 
   document.getElementById("receipt").innerHTML=
-    `<b>Booking ID:</b> ${id}<br>
-     <b>Name:</b> ${name}<br>
-     <b>Seats:</b> ${selectedSeats.join(", ")}`;
+  `<b>Booking ID:</b> ${id}<br>
+   <b>Name:</b> ${name}<br>
+   <b>Seats:</b> ${selectedSeats.join(", ")}<br>
+   <b>User:</b> ${currentUser.email}`;
 
   selectedSeats=[];
 }
@@ -346,18 +398,23 @@ onSnapshot(doc(db,"buses",busId),(snap)=>{
 });
 
 function signup(){
-  createUserWithEmailAndPassword(auth,
-    email.value,password.value)
+  createUserWithEmailAndPassword(auth,email.value,password.value)
   .then(()=>alert("Account created"))
   .catch(e=>alert(e.message));
 }
 
 function login(){
-  signInWithEmailAndPassword(auth,
-    email.value,password.value)
+  signInWithEmailAndPassword(auth,email.value,password.value)
   .then(()=>{
-    document.getElementById("booking-section").style.display="block";
-    closeLogin();
+    document.getElementById("loginFormBox").style.display="none";
+    document.getElementById("loginSuccessBox").style.display="block";
+
+    setTimeout(()=>{
+      closeLogin();
+      document.getElementById("loginSuccessBox").style.display="none";
+      document.getElementById("loginFormBox").style.display="block";
+      showBooking();
+    },1500);
   })
   .catch(e=>alert(e.message));
 }
@@ -368,9 +425,20 @@ window.confirmBooking=confirmBooking;
 </script>
 
 <script>
-function toggleDark(){ document.body.classList.toggle("dark"); }
 function openLogin(){ document.getElementById("loginPopup").classList.add("active"); }
 function closeLogin(){ document.getElementById("loginPopup").classList.remove("active"); }
+function showBooking(){ document.getElementById("booking-section").style.display="block"; }
+
+function openLoginRequired(){
+  document.getElementById("loginRequiredPopup").classList.add("active");
+}
+function closeLoginRequired(){
+  document.getElementById("loginRequiredPopup").classList.remove("active");
+}
+function goToLogin(){
+  closeLoginRequired();
+  openLogin();
+}
 </script>
 
 </body>
