@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Bus Booking</title>
+  <style>
+    body { font-family: Arial; text-align:center; }
+    .seat {
+      width:40px;
+      height:40px;
+      margin:5px;
+      display:inline-block;
+      line-height:40px;
+      cursor:pointer;
+      border-radius:6px;
+    }
+    .available { background:#ccc; }
+    .booked { background:red; color:white; cursor:not-allowed; }
+    .selected { background:green; color:white; }
+  </style>
+</head>
+
+<body>
+
+<h2>Smart Bus Booking</h2>
+
+<div id="auth-section">
+  <input type="email" id="email" placeholder="Email"><br><br>
+  <input type="password" id="password" placeholder="Password"><br><br>
+  <button onclick="signup()">Sign Up</button>
+  <button onclick="login()">Login</button>
+</div>
+
+<br>
+
+<div id="booking-section" style="display:none;">
+  <h3>Select Seats (Bus B101)</h3>
+  <div id="seat-container"></div>
+  <br>
+  <button onclick="confirmBooking()">Confirm Booking</button>
+  <br><br>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDIpuhrOpQtkv1-7pSC4cshBJexlmYCCmI",
+  authDomain: "smartbusbooking-ec70e.firebaseapp.com",
+  projectId: "smartbusbooking-ec70e",
+  storageBucket: "smartbusbooking-ec70e.firebasestorage.app",
+  messagingSenderId: "5395331936",
+  appId: "1:5395331936:web:e32959ebe95eef9b373c05",
+  measurementId: "G-T5YVPH7KMJ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let selectedSeats = [];
+let bookedSeats = [];
+const busId = "B101";
+
+const seatContainer = document.getElementById("seat-container");
+
+/* Render Seats */
+function renderSeats(){
+  seatContainer.innerHTML = "";
+  for(let i=1;i<=12;i++){
+    let seatId = "S"+i;
+    let div = document.createElement("div");
+    div.classList.add("seat");
+
+    if(bookedSeats.includes(seatId)){
+      div.classList.add("booked");
+    } else if(selectedSeats.includes(seatId)){
+      div.classList.add("selected");
+      div.onclick = ()=>toggleSeat(seatId);
+    } else {
+      div.classList.add("available");
+      div.onclick = ()=>toggleSeat(seatId);
+    }
+
+    div.innerText = seatId;
+    seatContainer.appendChild(div);
+  }
+}
+
+/* Select Seat */
+function toggleSeat(seatId){
+  if(selectedSeats.includes(seatId)){
+    selectedSeats = selectedSeats.filter(s=>s!==seatId);
+  } else {
+    selectedSeats.push(seatId);
+  }
+  renderSeats();
+}
+
+/* Confirm Booking */
+async function confirmBooking(){
+  const busRef = doc(db,"buses",busId);
+  const snap = await getDoc(busRef);
+
+  if(!snap.exists()){
+    alert("Bus document not found in Firestore");
+    return;
+  }
+
+  const current = snap.data().seats || [];
+
+  const conflict = selectedSeats.some(s=>current.includes(s));
+  if(conflict){
+    alert("Seat already booked!");
+    return;
+  }
+
+  await updateDoc(busRef,{
+    seats: arrayUnion(...selectedSeats)
+  });
+
+  alert("Booking Confirmed!");
+  selectedSeats=[];
+}
+
+/* Signup */
+function signup(){
+  const email=document.getElementById("email").value;
+  const pass=document.getElementById("password").value;
+
+  createUserWithEmailAndPassword(auth,email,pass)
+  .then(()=>alert("Account Created Successfully"))
+  .catch(err=>alert(err.message));
+}
+
+/* Login */
+function login(){
+  const email=document.getElementById("email").value;
+  const pass=document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth,email,pass)
+  .then(()=>{
+    document.getElementById("auth-section").style.display="none";
+    document.getElementById("booking-section").style.display="block";
+  })
+  .catch(err=>alert(err.message));
+}
+
+/* Logout */
+function logout(){
+  signOut(auth).then(()=>{
+    document.getElementById("auth-section").style.display="block";
+    document.getElementById("booking-section").style.display="none";
+  });
+}
+
+/* Real-time Seat Listener */
+const busRef = doc(db,"buses",busId);
+onSnapshot(busRef,(snap)=>{
+  if(snap.exists()){
+    bookedSeats = snap.data().seats || [];
+    renderSeats();
+  }
+});
+
+/* 🔥 MAKE FUNCTIONS GLOBAL (Fix signup error) */
+window.signup = signup;
+window.login = login;
+window.logout = logout;
+window.confirmBooking = confirmBooking;
+
+</script>
+
+</body>
+</html>
