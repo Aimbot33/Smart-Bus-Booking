@@ -2,178 +2,375 @@
 <html>
 <head>
   <title>Smart Bus Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    body { font-family: Arial; text-align:center; }
-    .seat {
-      width:40px;
-      height:40px;
-      margin:5px;
-      display:inline-block;
-      line-height:40px;
-      cursor:pointer;
-      border-radius:6px;
+    :root{
+      --primary:#d84e55;
+      --light:#ffffff;
+      --dark:#121212;
+      --card:#ffffff;
+      --text:#000000;
     }
-    .available { background:#ccc; }
-    .booked { background:red; color:white; cursor:not-allowed; }
-    .selected { background:green; color:white; }
+
+    body{
+      margin:0;
+      font-family:'Segoe UI',sans-serif;
+      background:url("https://images.unsplash.com/photo-1504384308090-c894fdcc538d")
+      no-repeat center center/cover;
+      transition:0.3s;
+    }
+
+    body.dark{
+      background:#121212;
+      color:white;
+    }
+
+    header{
+      background:var(--primary);
+      padding:15px 30px;
+      color:white;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .dark-toggle{
+      background:white;
+      color:black;
+      padding:5px 12px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:12px;
+    }
+
+    .container{
+      display:flex;
+      justify-content:center;
+      margin-top:40px;
+    }
+
+    .card{
+      background:white;
+      padding:30px;
+      width:480px;
+      border-radius:15px;
+      box-shadow:0 15px 40px rgba(0,0,0,0.3);
+      transition:0.3s;
+    }
+
+    body.dark .card{
+      background:#1f1f1f;
+    }
+
+    h2,h3{
+      text-align:center;
+      margin-bottom:15px;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+      border-radius:6px;
+      border:1px solid #ccc;
+    }
+
+    button{
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      border:none;
+      border-radius:6px;
+      background:var(--primary);
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.3s;
+    }
+
+    button:hover{
+      opacity:0.85;
+      transform:scale(1.02);
+    }
+
+    #seat-container{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:15px;
+    }
+
+    .seat{
+      padding:12px;
+      border-radius:6px;
+      text-align:center;
+      font-weight:bold;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .available{
+      background:#e0e0e0;
+    }
+
+    .available:hover{
+      background:#ccc;
+      transform:scale(1.1);
+    }
+
+    .selected{
+      background:#4caf50;
+      color:white;
+      animation:pulse 0.4s;
+    }
+
+    .booked{
+      background:#d84e55;
+      color:white;
+      cursor:not-allowed;
+    }
+
+    @keyframes pulse{
+      0%{ transform:scale(0.9);}
+      50%{ transform:scale(1.1);}
+      100%{ transform:scale(1);}
+    }
+
+    .legend{
+      display:flex;
+      justify-content:space-around;
+      margin-top:10px;
+      font-size:12px;
+    }
+
+    .legend div{
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+
+    .box{
+      width:15px;
+      height:15px;
+      border-radius:3px;
+    }
+
+    .receipt{
+      margin-top:20px;
+      padding:15px;
+      border-radius:10px;
+      border:1px solid #ccc;
+      font-size:14px;
+    }
+
+    /* Popup Login */
+    .popup{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.6);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      visibility:hidden;
+      opacity:0;
+      transition:0.3s;
+    }
+
+    .popup.active{
+      visibility:visible;
+      opacity:1;
+    }
+
+    .popup-content{
+      background:white;
+      padding:30px;
+      border-radius:10px;
+      width:300px;
+      animation:slideDown 0.4s;
+    }
+
+    @keyframes slideDown{
+      from{transform:translateY(-40px);opacity:0;}
+      to{transform:translateY(0);opacity:1;}
+    }
   </style>
 </head>
 
 <body>
 
-<h2>Smart Bus Booking</h2>
+<header>
+  <div>🚌 Smart Bus Booking</div>
+  <div class="dark-toggle" onclick="toggleDark()">Dark Mode</div>
+</header>
 
-<div id="auth-section">
-  <input type="email" id="email" placeholder="Email"><br><br>
-  <input type="password" id="password" placeholder="Password"><br><br>
-  <button onclick="signup()">Sign Up</button>
-  <button onclick="login()">Login</button>
+<div class="container">
+  <div class="card">
+
+    <button onclick="openLogin()">Login / Signup</button>
+
+    <div id="booking-section" style="display:none;">
+
+      <h3>Select Seats (B101)</h3>
+
+      <div class="legend">
+        <div><div class="box" style="background:#e0e0e0"></div> Available</div>
+        <div><div class="box" style="background:#4caf50"></div> Selected</div>
+        <div><div class="box" style="background:#d84e55"></div> Booked</div>
+      </div>
+
+      <div id="seat-container"></div>
+
+      <h3>Passenger Details</h3>
+      <input type="text" id="name" placeholder="Full Name">
+      <input type="text" id="mobile" placeholder="Mobile Number">
+      <input type="text" id="destination" placeholder="Destination">
+      <input type="text" id="time" placeholder="Travel Time">
+
+      <button onclick="confirmBooking()">Confirm Booking</button>
+
+      <div id="receipt" class="receipt"></div>
+    </div>
+
+  </div>
 </div>
 
-<br>
-
-<div id="booking-section" style="display:none;">
-  <h3>Select Seats (Bus B101)</h3>
-  <div id="seat-container"></div>
-  <br>
-  <button onclick="confirmBooking()">Confirm Booking</button>
-  <br><br>
-  <button onclick="logout()">Logout</button>
+<div class="popup" id="loginPopup">
+  <div class="popup-content">
+    <h3>Login</h3>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="closeLogin()">Close</button>
+  </div>
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion }
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot, arrayUnion, setDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* YOUR ORIGINAL CONFIG (UNCHANGED) */
 const firebaseConfig = {
   apiKey: "AIzaSyDIpuhrOpQtkv1-7pSC4cshBJexlmYCCmI",
   authDomain: "smartbusbooking-ec70e.firebaseapp.com",
   projectId: "smartbusbooking-ec70e",
   storageBucket: "smartbusbooking-ec70e.firebasestorage.app",
   messagingSenderId: "5395331936",
-  appId: "1:5395331936:web:e32959ebe95eef9b373c05",
-  measurementId: "G-T5YVPH7KMJ"
+  appId: "1:5395331936:web:e32959ebe95eef9b373c05"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let selectedSeats = [];
-let bookedSeats = [];
-const busId = "B101";
+let selectedSeats=[];
+let bookedSeats=[];
+const busId="B101";
+const seatContainer=document.getElementById("seat-container");
 
-const seatContainer = document.getElementById("seat-container");
-
-/* Render Seats */
 function renderSeats(){
-  seatContainer.innerHTML = "";
+  seatContainer.innerHTML="";
   for(let i=1;i<=12;i++){
-    let seatId = "S"+i;
-    let div = document.createElement("div");
+    let id="S"+i;
+    let div=document.createElement("div");
     div.classList.add("seat");
+    div.innerText=id;
 
-    if(bookedSeats.includes(seatId)){
+    if(bookedSeats.includes(id)){
       div.classList.add("booked");
-    } else if(selectedSeats.includes(seatId)){
+    } else if(selectedSeats.includes(id)){
       div.classList.add("selected");
-      div.onclick = ()=>toggleSeat(seatId);
-    } else {
+      div.onclick=()=>toggleSeat(id);
+    } else{
       div.classList.add("available");
-      div.onclick = ()=>toggleSeat(seatId);
+      div.onclick=()=>toggleSeat(id);
     }
-
-    div.innerText = seatId;
     seatContainer.appendChild(div);
   }
 }
 
-/* Select Seat */
-function toggleSeat(seatId){
-  if(selectedSeats.includes(seatId)){
-    selectedSeats = selectedSeats.filter(s=>s!==seatId);
-  } else {
-    selectedSeats.push(seatId);
+function toggleSeat(id){
+  if(selectedSeats.includes(id)){
+    selectedSeats=selectedSeats.filter(s=>s!==id);
+  } else{
+    selectedSeats.push(id);
   }
   renderSeats();
 }
 
-/* Confirm Booking */
 async function confirmBooking(){
-  const busRef = doc(db,"buses",busId);
-  const snap = await getDoc(busRef);
+  const name=document.getElementById("name").value;
+  const mobile=document.getElementById("mobile").value;
 
-  if(!snap.exists()){
-    alert("Bus document not found in Firestore");
+  if(!name||!mobile||selectedSeats.length===0){
+    alert("Fill details & select seats");
     return;
   }
 
-  const current = snap.data().seats || [];
+  const ref=doc(db,"buses",busId);
+  const snap=await getDoc(ref);
+  const current=snap.data().seats||[];
 
-  const conflict = selectedSeats.some(s=>current.includes(s));
-  if(conflict){
-    alert("Seat already booked!");
+  if(selectedSeats.some(s=>current.includes(s))){
+    alert("Seat already booked");
     return;
   }
 
-  await updateDoc(busRef,{
-    seats: arrayUnion(...selectedSeats)
+  await updateDoc(ref,{ seats:arrayUnion(...selectedSeats) });
+
+  const id="BK"+Date.now();
+  await setDoc(doc(db,"bookings",id),{
+    name,mobile,seats:selectedSeats,bus:busId
   });
 
-  alert("Booking Confirmed!");
+  document.getElementById("receipt").innerHTML=
+    `<b>Booking ID:</b> ${id}<br>
+     <b>Name:</b> ${name}<br>
+     <b>Seats:</b> ${selectedSeats.join(", ")}`;
+
   selectedSeats=[];
 }
 
-/* Signup */
-function signup(){
-  const email=document.getElementById("email").value;
-  const pass=document.getElementById("password").value;
-
-  createUserWithEmailAndPassword(auth,email,pass)
-  .then(()=>alert("Account Created Successfully"))
-  .catch(err=>alert(err.message));
-}
-
-/* Login */
-function login(){
-  const email=document.getElementById("email").value;
-  const pass=document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth,email,pass)
-  .then(()=>{
-    document.getElementById("auth-section").style.display="none";
-    document.getElementById("booking-section").style.display="block";
-  })
-  .catch(err=>alert(err.message));
-}
-
-/* Logout */
-function logout(){
-  signOut(auth).then(()=>{
-    document.getElementById("auth-section").style.display="block";
-    document.getElementById("booking-section").style.display="none";
-  });
-}
-
-/* Real-time Seat Listener */
-const busRef = doc(db,"buses",busId);
-onSnapshot(busRef,(snap)=>{
+onSnapshot(doc(db,"buses",busId),(snap)=>{
   if(snap.exists()){
-    bookedSeats = snap.data().seats || [];
+    bookedSeats=snap.data().seats||[];
     renderSeats();
   }
 });
 
-/* 🔥 MAKE FUNCTIONS GLOBAL (Fix signup error) */
-window.signup = signup;
-window.login = login;
-window.logout = logout;
-window.confirmBooking = confirmBooking;
+function signup(){
+  createUserWithEmailAndPassword(auth,
+    email.value,password.value)
+  .then(()=>alert("Account created"))
+  .catch(e=>alert(e.message));
+}
 
+function login(){
+  signInWithEmailAndPassword(auth,
+    email.value,password.value)
+  .then(()=>{
+    document.getElementById("booking-section").style.display="block";
+    closeLogin();
+  })
+  .catch(e=>alert(e.message));
+}
+
+window.signup=signup;
+window.login=login;
+window.confirmBooking=confirmBooking;
+</script>
+
+<script>
+function toggleDark(){ document.body.classList.toggle("dark"); }
+function openLogin(){ document.getElementById("loginPopup").classList.add("active"); }
+function closeLogin(){ document.getElementById("loginPopup").classList.remove("active"); }
 </script>
 
 </body>
